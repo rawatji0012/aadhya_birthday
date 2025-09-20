@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balloon Game 🎈</title>
+<style>
+  body {
+    margin:0;
+    background: linear-gradient(to top, #a1c4fd, #c2e9fb);
+    font-family: 'Segoe UI', sans-serif;
+    text-align:center;
+    overflow:hidden;
+  }
+  h1 {
+    margin: 20px;
+    font-size:2em;
+    color:#ff0077;
+  }
+  #gameArea {
+    position:relative;
+    width:100vw;
+    height:80vh;
+    overflow:hidden;
+  }
+  .balloon {
+    font-size:90px;
+    position:absolute;
+    bottom:-120px;
+    cursor:pointer;
+    transition: transform 0.3s;
+  }
+  .btn {
+    margin-left:10px;
+    padding:10px 20px;
+    font-size:1.2em;
+    border-radius:20px;
+    border:none;
+    cursor:pointer;
+    background:#ff0077;
+    color:#fff;
+  }
+  #message {
+    font-size:1.5em;
+    color:#ff0077;
+    margin-top:20px;
+    display:inline-block;
+  }
+</style>
+</head>
+<body>
+
+<h1>🎈 Pop all the balloons! 🎈</h1>
+<div id="gameArea"></div>
+<div id="message"></div>
+<button class="btn" id="nextBtn" style="display:none;" onclick="nextPage()">>>> Next</button>
+
+<script>
+const gameArea = document.getElementById('gameArea');
+const message = document.getElementById('message');
+const nextBtn = document.getElementById('nextBtn');
+
+let balloons = [];
+let popped = 0;
+let created = 0;
+const totalBalloons = 12; // reduced balloons
+const spacing = 6; // vw minimum spacing
+
+// Create a balloon
+function createBalloon(){
+  const balloon = document.createElement('div');
+  balloon.classList.add('balloon');
+  balloon.innerHTML = '🎈';
+
+  let leftPos;
+  do {
+    leftPos = Math.random() * 85;
+  } while (balloons.some(b => Math.abs(b.left - leftPos) < spacing));
+
+  balloon.style.left = leftPos + 'vw';
+  balloon.style.bottom = '-120px';
+  balloon.speed = 0.4 + Math.random()*0.2; // slower speed
+  balloon.popped = false;
+  balloon.left = leftPos;
+
+  balloon.addEventListener('click', () => {
+    if(!balloon.popped){
+      balloon.popped = true;
+      balloon.style.transform = 'scale(0)';
+      setTimeout(()=> balloon.remove(), 300);
+      popped++;
+      if(popped === totalBalloons){
+        message.innerHTML = '🎉 Wah yrr chalo ab idhar aao 💖';
+        nextBtn.style.display = 'inline-block';
+      }
+    }
+  });
+
+  gameArea.appendChild(balloon);
+  balloons.push(balloon);
+}
+
+// Sequential creation
+function startCreating(){
+  const interval = setInterval(()=>{
+    if(created < totalBalloons){
+      createBalloon();
+      created++;
+    } else {
+      clearInterval(interval);
+    }
+  }, 500); // 0.5s gap
+}
+
+// Single animation loop
+function animate(){
+  balloons.forEach(b => {
+    if(!b.popped){
+      let currentBottom = parseFloat(b.style.bottom);
+      currentBottom += b.speed;
+      b.style.bottom = currentBottom + 'px';
+      if(currentBottom > gameArea.clientHeight){
+        b.popped = true;
+        b.remove();
+      }
+    }
+  });
+  requestAnimationFrame(animate);
+}
+
+// Next page function
+function nextPage(){
+  window.location.href = "page3.html";
+}
+
+// Start the game
+startCreating();
+requestAnimationFrame(animate);
+
+</script>
+</body>
+</html>
